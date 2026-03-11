@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Artikel — NederlandNieuws</title>
+<link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--orange:#E8500A;--navy:#003082;--bg:#F4F6FB;--white:#fff;--dark:#0D1B2A;--mid:#4A5568;--border:#DCE3F0;--accent:#FFB800}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dark)}
+.top-bar{background:var(--navy);color:rgba(255,255,255,0.7);font-size:11px;letter-spacing:1px;padding:7px 40px;display:flex;justify-content:space-between}
+.top-bar strong{color:#fff}
+header{background:var(--white);border-bottom:4px solid var(--orange);box-shadow:0 2px 16px rgba(0,0,0,0.06)}
+.header-inner{max-width:1200px;margin:0 auto;padding:20px 24px;display:flex;align-items:center;justify-content:space-between}
+.logo{font-family:'Abril Fatface',serif;font-size:34px;color:var(--navy);text-decoration:none}
+.logo span{color:var(--orange)}
+nav{background:var(--navy);overflow:hidden}
+.nav-inner{max-width:1200px;margin:0 auto;padding:0 24px;display:flex;gap:0}
+nav a{display:block;padding:13px 18px;color:rgba(255,255,255,0.8);text-decoration:none;font-size:13px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;transition:all 0.2s;border-bottom:3px solid transparent}
+nav a:hover{color:#fff;border-bottom-color:var(--orange)}
+
+/* POST HERO */
+.post-hero{background:linear-gradient(160deg,var(--navy),#001a60);padding:60px 24px;color:#fff;text-align:center;position:relative;overflow:hidden}
+.post-hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:4px;background:linear-gradient(to right,var(--orange),var(--accent),var(--orange))}
+.post-cat{display:inline-block;background:var(--orange);color:#fff;font-size:10px;letter-spacing:3px;font-weight:700;padding:5px 16px;text-transform:uppercase;margin-bottom:22px}
+.post-title{font-family:'Abril Fatface',serif;font-size:50px;line-height:1.1;letter-spacing:-1px;max-width:820px;margin:0 auto 22px}
+.post-meta{font-size:13px;color:rgba(255,255,255,0.55);display:flex;justify-content:center;gap:20px;flex-wrap:wrap}
+.post-meta span{color:rgba(255,255,255,0.9);font-weight:600}
+
+/* LAYOUT */
+.layout{max-width:1100px;margin:48px auto;padding:0 24px;display:grid;grid-template-columns:1fr 280px;gap:32px}
+.main-col{background:var(--white);padding:40px;border:1px solid var(--border)}
+.back-btn{display:inline-flex;align-items:center;gap:6px;color:var(--mid);text-decoration:none;font-size:12px;font-weight:700;margin-bottom:32px;padding:8px 16px;border:1px solid var(--border);letter-spacing:0.5px;text-transform:uppercase;transition:all 0.2s}
+.back-btn:hover{background:var(--navy);color:#fff;border-color:var(--navy)}
+.article-body{font-size:17px;line-height:1.92;color:#374151;font-weight:300}
+.article-body p{margin-bottom:24px}
+.article-body h2{font-family:'Abril Fatface',serif;font-size:30px;color:var(--navy);margin:48px 0 16px;padding-bottom:10px;border-bottom:2px solid var(--orange)}
+.article-body h3{font-size:19px;font-weight:700;color:var(--dark);margin:32px 0 10px}
+.article-body a{color:var(--orange);font-weight:500;text-decoration:underline;text-underline-offset:3px}
+.article-body a:hover{color:var(--navy)}
+.article-body ul,.article-body ol{padding-left:24px;margin-bottom:22px}
+.article-body li{margin-bottom:8px;line-height:1.7}
+blockquote{background:var(--bg);border-left:4px solid var(--orange);padding:20px 28px;margin:32px 0;font-style:italic;font-size:18px;color:var(--mid);border-radius:0 4px 4px 0}
+
+/* SIDEBAR */
+.sidebar{display:flex;flex-direction:column;gap:20px}
+.widget{background:var(--white);border:1px solid var(--border);padding:24px}
+.widget-title{font-family:'Abril Fatface',serif;font-size:16px;color:var(--navy);margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid var(--orange)}
+.recent-item{padding:12px 0;border-bottom:1px solid var(--border);font-size:13px}
+.recent-item:last-child{border-bottom:none}
+.recent-item a{color:var(--navy);text-decoration:none;font-weight:600;display:block;margin-bottom:3px;line-height:1.4}
+.recent-item a:hover{color:var(--orange)}
+.recent-item span{font-size:11px;color:#aaa}
+.not-found{text-align:center;padding:80px 24px;color:var(--mid);grid-column:1/-1}
+.not-found h2{font-family:'Abril Fatface',serif;font-size:36px;color:var(--navy);margin-bottom:12px}
+
+footer{background:var(--navy);color:rgba(255,255,255,0.5);margin-top:60px}
+.footer-bottom{text-align:center;padding:28px 24px;font-size:12px}
+.footer-bottom .footer-logo{font-family:'Abril Fatface',serif;font-size:22px;color:#fff;margin-bottom:10px}
+.footer-bottom .footer-logo span{color:var(--orange)}
+.footer-bottom a{color:rgba(255,255,255,0.5);text-decoration:none;margin:0 8px}
+.footer-bottom a:hover{color:var(--orange)}
+</style>
+</head>
+<body>
+<div class="top-bar"><span>🇳🇱 <strong>Nederland Nieuws</strong></span><span>Woensdag, 12 Maart 2026</span></div>
+<header>
+  <div class="header-inner">
+    <a href="index.html" class="logo">Nederland<span>Nieuws</span></a>
+  </div>
+</header>
+<nav><div class="nav-inner">
+  <a href="index.html">← Terug</a>
+  <a href="index.html">Home</a>
+  <a href="index.html">Nederland</a>
+  <a href="index.html">Economie</a>
+</div></nav>
+
+<div id="post-hero" class="post-hero" style="display:none">
+  <div class="post-cat" id="post-cat">Nederland</div>
+  <h1 class="post-title" id="post-title"></h1>
+  <div class="post-meta">
+    <span>✍ <span id="post-author">Redactie</span></span>
+    <span>📅 <span id="post-date"></span></span>
+    <span>⏱ <span id="post-read">5 min leestijd</span></span>
+  </div>
+</div>
+
+<div class="layout">
+  <div class="main-col">
+    <a href="index.html" class="back-btn">← Alle artikelen</a>
+    <div id="article-body" class="article-body"></div>
+    <div id="not-found" class="not-found" style="display:none">
+      <h2>Artikel niet gevonden</h2>
+      <p>Het gezochte artikel bestaat niet meer.</p>
+    </div>
+  </div>
+  <aside class="sidebar">
+    <div class="widget">
+      <div class="widget-title">Recente Artikelen</div>
+      <div id="recent-posts"></div>
+    </div>
+    <div class="widget">
+      <div class="widget-title">Over Ons</div>
+      <p style="font-size:13px;line-height:1.7;color:#666;font-weight:300">Nederland Nieuws biedt dagelijks betrouwbaar nieuws en achtergrondartikelen over Nederland en de wereld.</p>
+    </div>
+  </aside>
+</div>
+
+<footer>
+  <div class="footer-bottom">
+    <div class="footer-logo">Nederland<span>Nieuws</span></div>
+    <p>&copy; 2026 NederlandNieuws &nbsp;·&nbsp; <a href="#">Disclaimer</a> &nbsp;·&nbsp; <a href="#">Privacy</a></p>
+  </div>
+</footer>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const id = params.get('id');
+const posts = JSON.parse(localStorage.getItem('db_posts') || '[]');
+const post = posts.find(p => p.id == id);
+if (post) {
+  document.title = post.title + ' — NederlandNieuws';
+  document.getElementById('post-title').textContent = post.title;
+  document.getElementById('post-cat').textContent = post.category || 'Nederland';
+  document.getElementById('post-author').textContent = post.author || 'Redactie';
+  document.getElementById('post-date').textContent = new Date(post.date).toLocaleDateString('nl-NL',{day:'numeric',month:'long',year:'numeric'});
+  const words = post.content.replace(/<[^>]+>/g,'').split(' ').length;
+  document.getElementById('post-read').textContent = Math.max(1,Math.round(words/200)) + ' min leestijd';
+  document.getElementById('article-body').innerHTML = post.content;
+  document.getElementById('post-hero').style.display = 'block';
+  // Recent posts
+  const rp = document.getElementById('recent-posts');
+  posts.slice(-4).reverse().forEach(p => {
+    if (p.id == id) return;
+    rp.innerHTML += `<div class="recent-item"><a href="post.html?id=${p.id}">${p.title}</a><span>${new Date(p.date).toLocaleDateString('nl-NL')}</span></div>`;
+  });
+} else {
+  document.getElementById('not-found').style.display = 'block';
+}
+</script>
+</body>
+</html>

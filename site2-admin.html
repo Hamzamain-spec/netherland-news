@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — NederlandNieuws</title>
+<link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--orange:#E8500A;--navy:#003082;--bg:#F4F6FB;--white:#fff;--dark:#0D1B2A;--mid:#4A5568;--border:#DCE3F0;--green:#16A34A;--accent:#FFB800}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dark);min-height:100vh}
+
+/* LOGIN */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,var(--navy) 0%,#001a60 60%,#000d30 100%);position:relative;overflow:hidden}
+.login-wrap::before{content:'🇳🇱';position:absolute;font-size:300px;opacity:0.04;right:-60px;bottom:-60px}
+.login-box{background:var(--white);padding:48px 40px;width:100%;max-width:420px;box-shadow:0 24px 80px rgba(0,0,0,0.4);position:relative}
+.login-box::before{content:'';position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(to right,#AE1C28,#fff,#21468B)}
+.login-logo{font-family:'Abril Fatface',serif;font-size:26px;color:var(--navy);margin-bottom:4px}
+.login-logo span{color:var(--orange)}
+.login-sub{font-size:12px;color:#aaa;letter-spacing:1px;text-transform:uppercase;margin-bottom:32px;font-weight:600}
+.field{margin-bottom:20px}
+.field label{display:block;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#888;margin-bottom:8px}
+.field input{width:100%;padding:13px 16px;border:2px solid var(--border);font-size:15px;font-family:'DM Sans',sans-serif;outline:none;transition:border 0.2s;background:var(--bg)}
+.field input:focus{border-color:var(--orange);background:#fff}
+.login-btn{width:100%;padding:15px;background:var(--orange);color:#fff;border:none;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all 0.2s;font-family:'DM Sans',sans-serif}
+.login-btn:hover{background:var(--navy)}
+.login-err{color:var(--orange);font-size:13px;margin-top:12px;display:none;font-weight:600;text-align:center}
+
+/* ADMIN */
+.admin-wrap{display:none;min-height:100vh}
+.admin-header{background:var(--navy);color:#fff;padding:0 32px;height:62px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;border-bottom:3px solid var(--orange)}
+.admin-logo{font-family:'Abril Fatface',serif;font-size:20px}
+.admin-logo span{color:var(--orange)}
+.admin-nav{display:flex;gap:6px;align-items:center}
+.admin-nav button{background:transparent;border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.7);padding:7px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;letter-spacing:0.5px}
+.admin-nav button:hover,.admin-nav button.active{background:var(--orange);border-color:var(--orange);color:#fff}
+.logout-btn{background:transparent;border:none;color:rgba(255,255,255,0.4);font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;padding:7px 12px}
+.logout-btn:hover{color:#fff}
+.view-btn{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff;padding:7px 16px;text-decoration:none;font-size:12px;font-weight:600;transition:all 0.2s}
+.view-btn:hover{background:var(--accent);color:var(--dark);border-color:var(--accent)}
+
+.admin-body{max-width:1100px;margin:0 auto;padding:32px 24px}
+.panel{display:none}
+.panel.active{display:block}
+.panel-title{font-family:'Abril Fatface',serif;font-size:26px;color:var(--navy);margin-bottom:24px;display:flex;align-items:center;gap:10px}
+.panel-title::before{content:'';width:5px;height:28px;background:var(--orange);display:block}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:28px}
+.stat-card{background:var(--white);padding:28px 24px;border:1px solid var(--border);border-bottom:4px solid var(--orange);transition:transform 0.2s}
+.stat-card:hover{transform:translateY(-3px)}
+.stat-num{font-family:'Abril Fatface',serif;font-size:42px;color:var(--navy)}
+.stat-label{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#aaa;margin-top:4px}
+
+/* EDITOR */
+.editor-grid{display:grid;grid-template-columns:1fr 300px;gap:24px}
+.editor-main{background:var(--white);padding:32px;border:1px solid var(--border)}
+.editor-side{display:flex;flex-direction:column;gap:16px}
+.side-box{background:var(--white);border:1px solid var(--border);padding:22px}
+.side-box h3{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#aaa;margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid var(--orange)}
+.title-input{font-size:24px;font-weight:700;border:none;background:transparent;padding:0;width:100%;outline:none;font-family:'DM Sans',sans-serif;margin-bottom:16px;color:var(--dark)}
+.title-input::placeholder{color:#ddd}
+.title-sep{height:3px;background:linear-gradient(to right,var(--orange),var(--accent),transparent);margin-bottom:20px}
+.form-field{margin-bottom:18px}
+.form-field label{display:block;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#aaa;margin-bottom:7px}
+.form-field input,.form-field select,.form-field textarea{width:100%;padding:10px 14px;border:2px solid var(--border);font-size:14px;font-family:'DM Sans',sans-serif;outline:none;transition:border 0.2s;background:var(--bg)}
+.form-field input:focus,.form-field select:focus,.form-field textarea:focus{border-color:var(--orange);background:#fff}
+#post-content{min-height:380px;resize:vertical;line-height:1.75;font-size:14px}
+.toolbar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.toolbar button{background:var(--bg);border:2px solid var(--border);padding:5px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s}
+.toolbar button:hover{background:var(--navy);color:#fff;border-color:var(--navy)}
+.publish-btn{width:100%;padding:14px;background:var(--orange);color:#fff;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;transition:background 0.2s}
+.publish-btn:hover{background:var(--navy)}
+.cancel-btn{width:100%;padding:10px;background:var(--bg);color:var(--mid);border:2px solid var(--border);font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;letter-spacing:0.5px}
+.cancel-btn:hover{border-color:var(--navy);color:var(--navy)}
+.success-msg{background:#dcfce7;color:#166534;padding:12px 16px;font-size:13px;font-weight:700;margin-top:8px;display:none;border-left:4px solid var(--green);letter-spacing:0.5px}
+
+/* POSTS TABLE */
+.posts-table{background:var(--white);border:1px solid var(--border);overflow:hidden}
+.posts-table-header{display:grid;grid-template-columns:1fr 140px 120px 110px;padding:12px 20px;background:var(--navy);color:#fff;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase}
+.post-row{display:grid;grid-template-columns:1fr 140px 120px 110px;padding:16px 20px;border-bottom:1px solid var(--border);align-items:center;transition:background 0.15s}
+.post-row:hover{background:var(--bg)}
+.post-row:last-child{border-bottom:none}
+.post-row-title{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:3px}
+.post-row-excerpt{font-size:12px;color:#bbb;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:380px}
+.post-row-date{font-size:12px;color:#888;font-weight:500}
+.post-row-cat{font-size:10px;background:#FEF3C7;color:#92400E;padding:3px 10px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;display:inline-block}
+.row-actions{display:flex;gap:6px}
+.edit-btn{background:var(--navy);color:#fff;border:none;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:0.5px}
+.del-btn{background:var(--orange);color:#fff;border:none;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:0.5px}
+.empty-posts{text-align:center;padding:60px;color:#aaa;font-size:14px;font-style:italic}
+
+.dashboard-cta{background:linear-gradient(135deg,var(--navy),#0050c8);color:#fff;padding:48px;text-align:center;border:1px solid var(--border)}
+.dashboard-cta h3{font-family:'Abril Fatface',serif;font-size:28px;margin-bottom:10px}
+.dashboard-cta p{font-size:14px;opacity:0.7;margin-bottom:24px;font-weight:300}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">Nederland<span>Nieuws</span></div>
+    <div class="login-sub">Admin Paneel</div>
+    <div class="field">
+      <label>Wachtwoord</label>
+      <input type="password" id="pw-input" placeholder="Wachtwoord invoeren..." onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="login-btn" onclick="doLogin()">Inloggen →</button>
+    <div class="login-err" id="login-err">❌ Onjuist wachtwoord!</div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div class="admin-wrap" id="admin-panel">
+  <div class="admin-header">
+    <div class="admin-logo">Nederland<span>Nieuws</span> Admin</div>
+    <div class="admin-nav">
+      <button class="active" onclick="showPanel('dashboard',this)">📊 Dashboard</button>
+      <button onclick="showPanel('new-post',this)">✏️ Nieuw Artikel</button>
+      <button onclick="showPanel('all-posts',this)">📋 Alle Artikelen</button>
+      <a href="index.html" target="_blank" class="view-btn">🌐 Website</a>
+      <button class="logout-btn" onclick="logout()">Uitloggen</button>
+    </div>
+  </div>
+
+  <div class="admin-body">
+
+    <!-- DASHBOARD -->
+    <div class="panel active" id="panel-dashboard">
+      <div class="panel-title">Dashboard</div>
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-num" id="stat-total">0</div><div class="stat-label">Artikelen totaal</div></div>
+        <div class="stat-card"><div class="stat-num" id="stat-today">0</div><div class="stat-label">Vandaag gepubliceerd</div></div>
+        <div class="stat-card"><div class="stat-num" id="stat-cats">0</div><div class="stat-label">Categorieën</div></div>
+      </div>
+      <div class="dashboard-cta">
+        <h3>Klaar om te schrijven?</h3>
+        <p>Maak uw volgende artikel aan en publiceer het direct</p>
+        <button class="publish-btn" style="width:auto;padding:12px 36px" onclick="showPanel('new-post',document.querySelector('.admin-nav button:nth-child(2)'))">Nieuw artikel →</button>
+      </div>
+    </div>
+
+    <!-- NEW POST -->
+    <div class="panel" id="panel-new-post">
+      <div class="panel-title"><span id="editor-mode-title">Nieuw Artikel</span></div>
+      <div class="editor-grid">
+        <div class="editor-main">
+          <input class="title-input" type="text" id="post-title" placeholder="Artikeltitel invoeren...">
+          <div class="title-sep"></div>
+          <div class="toolbar">
+            <button onclick="fmt('bold')"><b>B</b></button>
+            <button onclick="fmt('italic')"><i>I</i></button>
+            <button onclick="wrapTag('h2')">H2</button>
+            <button onclick="wrapTag('h3')">H3</button>
+            <button onclick="wrapTag('blockquote')">❝</button>
+            <button onclick="insertLink()">🔗 Link</button>
+            <button onclick="wrapTag('ul')">Lijst</button>
+          </div>
+          <div class="form-field">
+            <textarea id="post-content" placeholder="Artikelinhoud hier schrijven... HTML is toegestaan.&#10;&#10;Voorbeeld:&#10;&lt;p&gt;Uw artikel hier...&lt;/p&gt;&#10;&lt;h2&gt;Tussenkopje&lt;/h2&gt;&#10;&lt;p&gt;Meer inhoud...&lt;/p&gt;&#10;&lt;p&gt;Klik hier voor meer info: &lt;a href=&quot;https://example.com&quot;&gt;link tekst&lt;/a&gt;&lt;/p&gt;"></textarea>
+          </div>
+        </div>
+        <div class="editor-side">
+          <div class="side-box">
+            <h3>Publiceren</h3>
+            <button class="publish-btn" onclick="publishPost()">🚀 Publiceren</button>
+            <button class="cancel-btn" onclick="clearEditor()">✖ Annuleren</button>
+            <div class="success-msg" id="success-msg">✅ Artikel gepubliceerd!</div>
+          </div>
+          <div class="side-box">
+            <h3>Details</h3>
+            <div class="form-field">
+              <label>Categorie</label>
+              <select id="post-cat">
+                <option>Nederland</option>
+                <option>Economie</option>
+                <option>Politiek</option>
+                <option>Sport</option>
+                <option>Cultuur</option>
+                <option>Reizen</option>
+                <option>Lifestyle</option>
+                <option>Technologie</option>
+                <option>Overig</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label>Auteur</label>
+              <input type="text" id="post-author" placeholder="Redactie" value="Redactie">
+            </div>
+          </div>
+          <div class="side-box">
+            <h3>Voorvertoning</h3>
+            <div id="preview-title" style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:6px">—</div>
+            <div id="preview-excerpt" style="font-size:11px;color:#aaa;line-height:1.5">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALL POSTS -->
+    <div class="panel" id="panel-all-posts">
+      <div class="panel-title">Alle Artikelen</div>
+      <div class="posts-table">
+        <div class="posts-table-header">
+          <div>Titel</div><div>Datum</div><div>Categorie</div><div>Acties</div>
+        </div>
+        <div id="posts-list"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const PASS = 'germanadmin00#hamzauthority1';
+let editingId = null;
+
+function doLogin() {
+  if (document.getElementById('pw-input').value === PASS) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('admin-panel').style.display = 'block';
+    loadDashboard();
+  } else {
+    document.getElementById('login-err').style.display = 'block';
+    document.getElementById('pw-input').value = '';
+  }
+}
+function logout() {
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('admin-panel').style.display = 'none';
+  document.getElementById('pw-input').value = '';
+}
+function showPanel(name, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.admin-nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  if (btn) btn.classList.add('active');
+  if (name === 'all-posts') loadPostsList();
+  if (name === 'dashboard') loadDashboard();
+  if (name === 'new-post') { editingId = null; clearEditor(); }
+}
+function getPosts() { return JSON.parse(localStorage.getItem('db_posts') || '[]'); }
+function savePosts(posts) { localStorage.setItem('db_posts', JSON.stringify(posts)); }
+function publishPost() {
+  const title = document.getElementById('post-title').value.trim();
+  const content = document.getElementById('post-content').value.trim();
+  if (!title || !content) { alert('Vul titel en inhoud in!'); return; }
+  const posts = getPosts();
+  if (editingId) {
+    const idx = posts.findIndex(p => p.id == editingId);
+    if (idx > -1) { posts[idx].title=title; posts[idx].content=content; posts[idx].category=document.getElementById('post-cat').value; posts[idx].author=document.getElementById('post-author').value; }
+  } else {
+    posts.push({id:Date.now(),title,content,category:document.getElementById('post-cat').value,author:document.getElementById('post-author').value||'Redactie',date:new Date().toISOString()});
+  }
+  savePosts(posts);
+  const msg = document.getElementById('success-msg');
+  msg.textContent = editingId ? '✅ Artikel bijgewerkt!' : '✅ Artikel gepubliceerd!';
+  msg.style.display = 'block';
+  setTimeout(() => { msg.style.display='none'; clearEditor(); }, 2000);
+  editingId = null;
+}
+function clearEditor() {
+  document.getElementById('post-title').value = '';
+  document.getElementById('post-content').value = '';
+  document.getElementById('post-cat').value = 'Nederland';
+  document.getElementById('post-author').value = 'Redactie';
+  document.getElementById('preview-title').textContent = '—';
+  document.getElementById('preview-excerpt').textContent = '—';
+  document.getElementById('editor-mode-title').textContent = 'Nieuw Artikel';
+  editingId = null;
+}
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('post-title').addEventListener('input', e => {
+    document.getElementById('preview-title').textContent = e.target.value || '—';
+  });
+  document.getElementById('post-content').addEventListener('input', e => {
+    const text = e.target.value.replace(/<[^>]+>/g,'').substring(0,80);
+    document.getElementById('preview-excerpt').textContent = text ? text+'...' : '—';
+  });
+});
+function fmt(cmd) {
+  const ta = document.getElementById('post-content');
+  const s=ta.selectionStart,e=ta.selectionEnd,sel=ta.value.substring(s,e);
+  const tag=cmd==='bold'?'strong':'em';
+  ta.value=ta.value.substring(0,s)+`<${tag}>${sel}</${tag}>`+ta.value.substring(e);
+}
+function wrapTag(tag) {
+  const ta = document.getElementById('post-content');
+  const s=ta.selectionStart,e=ta.selectionEnd,sel=ta.value.substring(s,e)||'Tekst hier';
+  const wrapped=tag==='ul'?`<ul>\n  <li>${sel}</li>\n</ul>`:`<${tag}>${sel}</${tag}>`;
+  ta.value=ta.value.substring(0,s)+wrapped+ta.value.substring(e);
+}
+function insertLink() {
+  const url=prompt('URL invoeren:');
+  if (!url) return;
+  const ta=document.getElementById('post-content');
+  const s=ta.selectionStart,e=ta.selectionEnd,sel=ta.value.substring(s,e)||'Link tekst';
+  ta.value=ta.value.substring(0,s)+`<a href="${url}">${sel}</a>`+ta.value.substring(e);
+}
+function loadPostsList() {
+  const posts=getPosts();
+  const el=document.getElementById('posts-list');
+  if (!posts.length){el.innerHTML='<div class="empty-posts">Nog geen artikelen.</div>';return;}
+  el.innerHTML=posts.slice().reverse().map(p=>{
+    const date=new Date(p.date).toLocaleDateString('nl-NL');
+    const excerpt=p.content.replace(/<[^>]+>/g,'').substring(0,55);
+    return `<div class="post-row">
+      <div><div class="post-row-title">${p.title}</div><div class="post-row-excerpt">${excerpt}...</div></div>
+      <div class="post-row-date">${date}</div>
+      <div><span class="post-row-cat">${p.category||'Nederland'}</span></div>
+      <div class="row-actions">
+        <button class="edit-btn" onclick="editPost(${p.id})">✏ Edit</button>
+        <button class="del-btn" onclick="deletePost(${p.id})">✕ Del</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function editPost(id) {
+  const post=getPosts().find(p=>p.id==id);
+  if (!post) return;
+  editingId=id;
+  document.getElementById('post-title').value=post.title;
+  document.getElementById('post-content').value=post.content;
+  document.getElementById('post-cat').value=post.category||'Nederland';
+  document.getElementById('post-author').value=post.author||'Redactie';
+  document.getElementById('editor-mode-title').textContent='Artikel bewerken';
+  document.getElementById('preview-title').textContent=post.title;
+  showPanel('new-post',document.querySelector('.admin-nav button:nth-child(2)'));
+}
+function deletePost(id) {
+  if (!confirm('Artikel verwijderen?')) return;
+  savePosts(getPosts().filter(p=>p.id!=id));
+  loadPostsList(); loadDashboard();
+}
+function loadDashboard() {
+  const posts=getPosts();
+  document.getElementById('stat-total').textContent=posts.length;
+  const today=new Date().toDateString();
+  document.getElementById('stat-today').textContent=posts.filter(p=>new Date(p.date).toDateString()===today).length;
+  document.getElementById('stat-cats').textContent=new Set(posts.map(p=>p.category)).size;
+}
+</script>
+</body>
+</html>
