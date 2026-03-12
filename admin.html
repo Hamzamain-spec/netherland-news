@@ -264,7 +264,7 @@ let editingId = null;
 let gistConfig = {
   token: '',
   gistId: '',
-  siteName: 'nederlandnieuws'
+  siteName: 'netherland-news'
 };
 
 // Load Gist config from localStorage
@@ -276,7 +276,7 @@ function loadGistConfig() {
       gistConfig = {...gistConfig, ...savedConfig};
       document.getElementById('github-token').value = gistConfig.token || '';
       document.getElementById('gist-id').value = gistConfig.gistId || '';
-      document.getElementById('site-name').value = gistConfig.siteName || 'nederlandnieuws';
+      document.getElementById('site-name').value = gistConfig.siteName || 'netherland-news';
     } catch (e) {
       console.error('Error loading Gist config:', e);
     }
@@ -288,7 +288,7 @@ function saveGistConfig() {
   gistConfig = {
     token: document.getElementById('github-token').value,
     gistId: document.getElementById('gist-id').value,
-    siteName: document.getElementById('site-name').value || 'nederlandnieuws'
+    siteName: document.getElementById('site-name').value || 'netherland-news'
   };
   localStorage.setItem('gist_config', JSON.stringify(gistConfig));
   showGistStatus('✅ Configuratie opgeslagen in je browser!', 'green');
