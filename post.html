@@ -119,14 +119,22 @@ footer{background:var(--navy);color:rgba(255,255,255,0.5);margin-top:60px}
 <script>
 const params = new URLSearchParams(window.location.search);
 const id = params.get('id');
-const GIST_ID = '4204aab51e26caa4985f631e0b59e1c4';
+const SITE_NAME = 'netherland-news'; // Must match exactly what's in your Gist!
 
 async function loadPost() {
   try {
     console.log('Loading post with ID:', id);
     
+    // First try to get config from localStorage
+    let gistId = '42ea11087f40fdba423f8eb0f575ac96'; // Your Gist ID
+    const savedConfig = localStorage.getItem('gist_config');
+    if (savedConfig) {
+      const config = JSON.parse(savedConfig);
+      gistId = config.gistId || gistId;
+    }
+    
     // Fetch from Gist
-    const response = await fetch(`https://api.github.com/gists/${GIST_ID}`);
+    const response = await fetch(`https://api.github.com/gists/${gistId}`);
     
     if (response.ok) {
       const data = await response.json();
@@ -134,55 +142,68 @@ async function loadPost() {
       
       if (data.files && data.files['posts.json']) {
         const rawContent = data.files['posts.json'].content;
-        console.log('Raw content length:', rawContent.length);
+        const allPosts = JSON.parse(rawContent);
         
-        try {
-          const posts = JSON.parse(rawContent);
-          console.log('Posts loaded, count:', posts.length);
-          displayPost(posts);
-        } catch (parseError) {
-          console.error('Error parsing JSON:', parseError);
-          document.getElementById('not-found').style.display = 'block';
-        }
-      } else {
-        console.log('posts.json not found in Gist');
-        document.getElementById('not-found').style.display = 'block';
+        // Filter by site and find the post
+        const sitePosts = allPosts.filter(post => post.site === SITE_NAME);
+        console.log(`Found ${sitePosts.length} posts for site: ${SITE_NAME}`);
+        
+        const post = sitePosts.find(p => p.id == id);
+        console.log('Looking for post with ID:', id);
+        console.log('Found post:', post);
+        
+        displayPost(post, sitePosts);
+        return;
       }
-    } else {
-      console.error('Failed to fetch Gist:', response.status);
-      document.getElementById('not-found').style.display = 'block';
     }
+    
+    // If post not found
+    document.getElementById('not-found').style.display = 'block';
   } catch (error) {
     console.error('Error loading post:', error);
     document.getElementById('not-found').style.display = 'block';
   }
 }
 
-function displayPost(posts) {
-  const post = posts.find(p => p.id == id);
-  console.log('Looking for post with ID:', id);
-  console.log('Found post:', post);
-  
+function displayPost(post, allPosts) {
   if (post) {
     document.title = post.title + ' — NederlandNieuws';
     document.getElementById('post-title').textContent = post.title;
     document.getElementById('post-cat').textContent = post.category || 'Nederland';
     document.getElementById('post-author').textContent = post.author || 'Redactie';
-    document.getElementById('post-date').textContent = new Date(post.date).toLocaleDateString('nl-NL',{day:'numeric',month:'long',year:'numeric'});
-    const words = post.content.replace(/<[^>]+>/g,'').split(' ').length;
-    document.getElementById('post-read').textContent = Math.max(1,Math.round(words/200)) + ' min leestijd';
+    document.getElementById('post-date').textContent = new Date(post.date).toLocaleDateString('nl-NL', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
+    
+    // Calculate read time
+    const words = post.content.replace(/<[^>]+>/g, '').split(' ').length;
+    document.getElementById('post-read').textContent = Math.max(1, Math.round(words / 200)) + ' min leestijd';
+    
+    // Set content (allow HTML)
     document.getElementById('article-body').innerHTML = post.content;
     document.getElementById('post-hero').style.display = 'block';
     
-    // Recent posts
+    // Recent posts (excluding current)
     const rp = document.getElementById('recent-posts');
     rp.innerHTML = '';
-    posts.slice(-4).reverse().forEach(p => {
-      if (p.id == id) return;
-      rp.innerHTML += `<div class="recent-item"><a href="post.html?id=${p.id}">${p.title}</a><span>${new Date(p.date).toLocaleDateString('nl-NL')}</span></div>`;
+    
+    // Get other posts from same site, sort by date, take latest 4
+    const otherPosts = allPosts
+      .filter(p => p.id != id)
+      .sort((a, b) => new Date(b.date) - new Date(a.date))
+      .slice(0, 4);
+    
+    otherPosts.forEach(p => {
+      rp.innerHTML += `
+        <div class="recent-item">
+          <a href="post.html?id=${p.id}">${p.title}</a>
+          <span>${new Date(p.date).toLocaleDateString('nl-NL')}</span>
+        </div>
+      `;
     });
   } else {
-    console.log('Post not found in posts array');
     document.getElementById('not-found').style.display = 'block';
   }
 }
