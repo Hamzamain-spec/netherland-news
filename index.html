@@ -7,6 +7,7 @@
 <meta name="description" content="Actueel nieuws en achtergrondartikelen uit Nederland.">
 <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
+/* [Keep ALL your existing styles here - same as before] */
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--orange:#E8500A;--navy:#003082;--bg:#F4F6FB;--white:#fff;--dark:#0D1B2A;--mid:#4A5568;--border:#DCE3F0;--accent:#FFB800}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dark)}
@@ -200,55 +201,31 @@ footer{background:var(--navy);color:rgba(255,255,255,0.5);margin-top:60px}
 
 <script>
 const colors = ['c1','c2','c3','c4','c5','c6'];
+const GIST_ID = '4204aab51e26caa4985f631e0b59e1c4'; // Your Gist ID
 
 async function loadPosts() {
   const grid = document.getElementById('posts-grid');
   
   try {
-    // Try to get posts from Gist
-    const gistConfig = JSON.parse(localStorage.getItem('gist_config') || '{}');
+    // Try to fetch from Gist (public access - no token needed for reading!)
+    const response = await fetch(`https://api.github.com/gists/${GIST_ID}`);
     
-    if (gistConfig.gistId) {
-      // First try with token if available
-      if (gistConfig.token) {
-        const response = await fetch(`https://api.github.com/gists/${gistConfig.gistId}`, {
-          headers: {
-            'Authorization': `token ${gistConfig.token}`,
-            'Accept': 'application/vnd.github.v3+json'
-          }
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          if (data.files && data.files['posts.json']) {
-            const posts = JSON.parse(data.files['posts.json'].content);
-            displayPosts(posts);
-            return;
-          }
-        }
-      }
+    if (response.ok) {
+      const data = await response.json();
       
-      // Fallback to public access
-      const response = await fetch(`https://api.github.com/gists/${gistConfig.gistId}`);
-      
-      if (response.ok) {
-        const data = await response.json();
-        if (data.files && data.files['posts.json']) {
-          const posts = JSON.parse(data.files['posts.json'].content);
-          displayPosts(posts);
-          return;
-        }
+      // Check if posts.json exists in the gist
+      if (data.files && data.files['posts.json']) {
+        const posts = JSON.parse(data.files['posts.json'].content);
+        displayPosts(posts);
+        return;
       }
     }
     
-    // Fallback to localStorage
-    const posts = JSON.parse(localStorage.getItem('db_posts') || '[]');
-    displayPosts(posts);
+    // If Gist fetch fails, show empty state
+    displayPosts([]);
   } catch (error) {
     console.error('Error loading posts:', error);
-    // Fallback to localStorage
-    const posts = JSON.parse(localStorage.getItem('db_posts') || '[]');
-    displayPosts(posts);
+    displayPosts([]);
   }
 }
 
