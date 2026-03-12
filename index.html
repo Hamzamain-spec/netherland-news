@@ -108,9 +108,6 @@ footer{background:var(--navy);color:rgba(255,255,255,0.5);margin-top:60px}
 /* ADMIN LINK */
 .admin-link{position:fixed;bottom:20px;right:20px;background:var(--navy);color:#fff;padding:10px 18px;font-size:12px;text-decoration:none;opacity:0.4;transition:opacity 0.2s;font-weight:600;letter-spacing:0.5px}
 .admin-link:hover{opacity:1}
-
-/* DEBUG PANEL (temporary, remove after fixing) */
-.debug-panel{background:#f0f0f0;border:2px solid red;padding:20px;margin:20px;display:none}
 </style>
 </head>
 <body>
@@ -201,22 +198,16 @@ footer{background:var(--navy);color:rgba(255,255,255,0.5);margin-top:60px}
 
 <a href="admin.html" class="admin-link">⚙ Admin</a>
 
-<!-- Debug panel to see what's happening -->
-<div class="debug-panel" id="debug-panel">
-  <h3>Debug Info</h3>
-  <pre id="debug-content">Loading...</pre>
-</div>
-
 <script>
 const colors = ['c1','c2','c3','c4','c5','c6'];
-const SITE_NAME = 'netherland-news'; // Change this for each site!
+const SITE_NAME = 'netherland-news'; // Must match exactly what's in your Gist!
 
 async function loadPosts() {
   const grid = document.getElementById('posts-grid');
   
   try {
     // First try to get config from localStorage (if user visited admin)
-    let gistId = '4204aab51e26caa4985f631e0b59e1c4'; // Default
+    let gistId = '42ea11087f40fdba423f8eb0f575ac96'; // Your Gist ID
     const savedConfig = localStorage.getItem('gist_config');
     if (savedConfig) {
       const config = JSON.parse(savedConfig);
@@ -228,18 +219,27 @@ async function loadPosts() {
     
     if (response.ok) {
       const data = await response.json();
+      console.log('Gist data received:', data);
       
       if (data.files && data.files['posts.json']) {
         const rawContent = data.files['posts.json'].content;
+        console.log('Raw content:', rawContent.substring(0, 200) + '...');
+        
         const allPosts = JSON.parse(rawContent);
+        console.log('All posts:', allPosts);
         
         // Filter posts by site name
         const sitePosts = allPosts.filter(post => post.site === SITE_NAME);
         console.log(`Found ${sitePosts.length} posts for site: ${SITE_NAME}`);
+        console.log('Filtered posts:', sitePosts);
         
         displayPosts(sitePosts);
         return;
+      } else {
+        console.log('posts.json not found in Gist');
       }
+    } else {
+      console.error('Failed to fetch Gist:', response.status);
     }
     
     // If Gist fetch fails, show empty state
@@ -258,11 +258,58 @@ function displayPosts(posts) {
     return;
   }
   
-  // ... rest of display code same as before
+  // Clear the grid first
+  grid.innerHTML = '';
+  
+  // Sort posts by date (newest first)
+  const sortedPosts = [...posts].sort((a, b) => new Date(b.date) - new Date(a.date));
+  
+  // Generate HTML for each post
+  sortedPosts.forEach((post, index) => {
+    const color = colors[index % colors.length];
+    const date = new Date(post.date).toLocaleDateString('nl-NL', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
+    
+    // Clean excerpt (remove HTML tags)
+    const excerpt = post.content
+      .replace(/<[^>]+>/g, '')
+      .substring(0, 110) + '...';
+    
+    // Create card element
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.onclick = () => location.href = `post.html?id=${post.id}`;
+    
+    card.innerHTML = `
+      <div class="card-img">
+        <div class="card-img-bg ${color}"></div>
+        <span class="card-cat">${post.category || 'Nederland'}</span>
+      </div>
+      <div class="card-body">
+        <div class="card-meta">
+          <span>📅 ${date}</span>
+          <span>✍ ${post.author || 'Redactie'}</span>
+        </div>
+        <div class="card-title">${post.title}</div>
+        <div class="card-excerpt">${excerpt}</div>
+        <a class="card-link" href="post.html?id=${post.id}">Lees meer</a>
+      </div>
+    `;
+    
+    grid.appendChild(card);
+  });
+  
+  console.log(`Displayed ${posts.length} posts`);
 }
 
 // Load posts when page loads
 loadPosts();
+
+// Auto-refresh posts every 30 seconds
+setInterval(loadPosts, 30000);
 </script>
 </body>
 </html>
