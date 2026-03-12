@@ -6,7 +6,6 @@
 <title>Nederland Nieuws — Actueel & Betrouwbaar</title>
 <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-/* [Keep ALL your existing styles here] */
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--orange:#E8500A;--navy:#003082;--bg:#F4F6FB;--white:#fff;--dark:#0D1B2A;--mid:#4A5568;--border:#DCE3F0;--accent:#FFB800}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dark)}
@@ -200,53 +199,40 @@ footer{background:var(--navy);color:rgba(255,255,255,0.5);margin-top:60px}
 
 <script>
 const colors = ['c1','c2','c3','c4','c5','c6'];
-const SITE_NAME = 'netherland-news'; // Must match exactly what's in your Gist!
+const SITE_NAME = 'netherland-news'; // Must match exactly with admin config!
+
+// DIRECT RAW URL - No API key needed, always works!
+const GIST_RAW_URL = 'https://gist.githubusercontent.com/Hamzamain-spec/42ea11087f40fdba423f8eb0f575ac96/raw/posts.json';
 
 async function loadPosts() {
   const grid = document.getElementById('posts-grid');
   
   try {
-    // First try to get config from localStorage (if user visited admin)
-    let gistId = '42ea11087f40fdba423f8eb0f575ac96'; // Your Gist ID
-    const savedConfig = localStorage.getItem('gist_config');
-    if (savedConfig) {
-      const config = JSON.parse(savedConfig);
-      gistId = config.gistId || gistId;
-    }
+    console.log('Fetching from raw URL:', GIST_RAW_URL);
     
-    console.log('Fetching from Gist ID:', gistId);
-    const response = await fetch(`https://api.github.com/gists/${gistId}`);
+    // Use raw URL instead of API - no rate limiting!
+    const response = await fetch(GIST_RAW_URL);
     
     if (response.ok) {
-      const data = await response.json();
-      console.log('Gist data received:', data);
+      const rawContent = await response.text();
+      console.log('Raw content received, length:', rawContent.length);
       
-      if (data.files && data.files['posts.json']) {
-        const rawContent = data.files['posts.json'].content;
-        console.log('Raw content:', rawContent.substring(0, 200) + '...');
-        
-        const allPosts = JSON.parse(rawContent);
-        console.log('All posts:', allPosts);
-        
-        // Filter posts by site name
-        const sitePosts = allPosts.filter(post => post.site === SITE_NAME);
-        console.log(`Found ${sitePosts.length} posts for site: ${SITE_NAME}`);
-        console.log('Filtered posts:', sitePosts);
-        
-        displayPosts(sitePosts);
-        return;
-      } else {
-        console.log('posts.json not found in Gist');
-      }
+      const allPosts = JSON.parse(rawContent);
+      console.log('All posts:', allPosts);
+      
+      // Filter posts by site name
+      const sitePosts = allPosts.filter(post => post.site === SITE_NAME);
+      console.log(`Found ${sitePosts.length} posts for site: ${SITE_NAME}`);
+      console.log('Filtered posts:', sitePosts);
+      
+      displayPosts(sitePosts);
     } else {
       console.error('Failed to fetch Gist:', response.status);
+      grid.innerHTML = '<div class="empty"><h3>Kan artikelen niet laden</h3><p>Probeer het later opnieuw.</p></div>';
     }
-    
-    // If Gist fetch fails, show empty state
-    displayPosts([]);
   } catch (error) {
     console.error('Error loading posts:', error);
-    displayPosts([]);
+    grid.innerHTML = '<div class="empty"><h3>Fout bij laden</h3><p>' + error.message + '</p></div>';
   }
 }
 
@@ -258,7 +244,7 @@ function displayPosts(posts) {
     return;
   }
   
-  // Clear the grid first
+  // Clear the grid
   grid.innerHTML = '';
   
   // Sort posts by date (newest first)
