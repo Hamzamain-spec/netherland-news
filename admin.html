@@ -6,7 +6,7 @@
 <title>Admin — NederlandNieuws</title>
 <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-/* [Keep ALL your existing styles here - same as before] */
+/* [Keep ALL your existing styles] */
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--orange:#E8500A;--navy:#003082;--bg:#F4F6FB;--white:#fff;--dark:#0D1B2A;--mid:#4A5568;--border:#DCE3F0;--green:#16A34A;--accent:#FFB800}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dark);min-height:100vh}
@@ -158,22 +158,27 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dark);min
       <div class="panel-title">Gist Configuratie</div>
       <div class="gist-config">
         <div class="gist-warning">
-          ⚠️ BELANGRIJK: GitHub verwijdert tokens die in code staan!<br>
-          Vul hieronder je token in - het wordt ALLEEN in je browser opgeslagen.
+          ⚠️ BELANGRIJK: Vul hier je eigen site gegevens in!<br>
+          Dit zorgt dat artikelen van verschillende sites niet mixen.
         </div>
         <div class="gist-info">
-          <strong>📌 Jouw Gist ID:</strong><br>
-          <strong style="font-size:16px;">4204aab51e26caa4985f631e0b59e1c4</strong><br><br>
-          <strong>✅ Je Gist bestaat al!</strong>
+          <strong>📌 Zo vind je je Gist ID:</strong><br>
+          1. Ga naar <a href="https://gist.github.com/Hamzamain-spec" target="_blank">https://gist.github.com/Hamzamain-spec</a><br>
+          2. Klik op je posts.json gist<br>
+          3. Kopieer het ID uit de URL (het lange getal)<br>
         </div>
         <div class="gist-field">
-          <label>GitHub Token (plak hier je nieuwe token)</label>
+          <label>GitHub Token (plak hier je token)</label>
           <input type="password" id="github-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
-          <small style="color:#666;display:block;margin-top:4px;">Token wordt alleen lokaal in je browser opgeslagen</small>
         </div>
         <div class="gist-field">
-          <label>Gist ID (al ingevuld)</label>
-          <input type="text" id="gist-id" value="4204aab51e26caa4985f631e0b59e1c4" readonly>
+          <label>Gist ID (vul hier je Gist ID in)</label>
+          <input type="text" id="gist-id" placeholder="4204aab51e26caa4985f631e0b59e1c4">
+        </div>
+        <div class="gist-field">
+          <label>Site naam (bv. nederlandnieuws)</label>
+          <input type="text" id="site-name" value="nederlandnieuws" placeholder="nederlandnieuws">
+          <small style="color:#666;">Dit zorgt dat artikelen van verschillende sites niet mixen</small>
         </div>
         <button class="publish-btn" onclick="testGistConnection()" style="width:auto;padding:12px 24px">🔌 Test Gist Verbinding</button>
         <button class="publish-btn" onclick="saveGistConfig()" style="width:auto;padding:12px 24px;background:var(--navy)">💾 Configuratie Opslaan</button>
@@ -257,11 +262,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dark);min
 const PASS = 'germanadmin00#hamzauthority1';
 let editingId = null;
 let gistConfig = {
-  token: '',  // Empty! You'll paste it manually
-  gistId: '4204aab51e26caa4985f631e0b59e1c4'
+  token: '',
+  gistId: '',
+  siteName: 'nederlandnieuws'
 };
 
-// Load Gist config from localStorage (browser storage, not in the file!)
+// Load Gist config from localStorage
 function loadGistConfig() {
   const saved = localStorage.getItem('gist_config');
   if (saved) {
@@ -269,18 +275,20 @@ function loadGistConfig() {
       const savedConfig = JSON.parse(saved);
       gistConfig = {...gistConfig, ...savedConfig};
       document.getElementById('github-token').value = gistConfig.token || '';
-      document.getElementById('gist-id').value = gistConfig.gistId || '4204aab51e26caa4985f631e0b59e1c4';
+      document.getElementById('gist-id').value = gistConfig.gistId || '';
+      document.getElementById('site-name').value = gistConfig.siteName || 'nederlandnieuws';
     } catch (e) {
       console.error('Error loading Gist config:', e);
     }
   }
 }
 
-// Save Gist config to localStorage (browser storage only!)
+// Save Gist config
 function saveGistConfig() {
   gistConfig = {
     token: document.getElementById('github-token').value,
-    gistId: document.getElementById('gist-id').value
+    gistId: document.getElementById('gist-id').value,
+    siteName: document.getElementById('site-name').value || 'nederlandnieuws'
   };
   localStorage.setItem('gist_config', JSON.stringify(gistConfig));
   showGistStatus('✅ Configuratie opgeslagen in je browser!', 'green');
@@ -319,7 +327,7 @@ async function testGistConnection() {
     } else if (response.status === 403) {
       showGistStatus('❌ Fout 403: Geen toegang.\n\nZorg dat je ALLEEN de "gist" scope aanvinkt!', 'red');
     } else if (response.status === 404) {
-      showGistStatus('❌ Fout 404: Gist niet gevonden.\n\nGebruik dit ID: 4204aab51e26caa4985f631e0b59e1c4', 'red');
+      showGistStatus('❌ Fout 404: Gist niet gevonden.\n\nControleer of je Gist ID correct is en of de Gist publiek is!', 'red');
     } else {
       const error = await response.json();
       showGistStatus(`❌ Fout ${response.status}: ${error.message}`, 'red');
@@ -350,7 +358,13 @@ async function migrateLocalToGist() {
   showGistStatus('🔄 Bezig met migreren...', 'blue');
   
   try {
-    const success = await savePostsToGist(localPosts);
+    // Add site name to each post
+    const postsWithSite = localPosts.map(post => ({
+      ...post,
+      site: gistConfig.siteName
+    }));
+    
+    const success = await savePostsToGist(postsWithSite);
     if (success) {
       showGistStatus('✅ Migratie succesvol! Artikelen zijn opgeslagen op Gist.', 'green');
     } else {
@@ -384,7 +398,10 @@ async function getPostsFromGist() {
     
     if (data.files && data.files['posts.json']) {
       const content = data.files['posts.json'].content;
-      return JSON.parse(content);
+      const allPosts = JSON.parse(content);
+      
+      // Filter posts by site name
+      return allPosts.filter(post => post.site === gistConfig.siteName);
     }
     return [];
   } catch (error) {
@@ -401,6 +418,29 @@ async function savePostsToGist(posts) {
   }
   
   try {
+    // First get all existing posts from Gist
+    let allPosts = [];
+    const getResponse = await fetch(`https://api.github.com/gists/${gistConfig.gistId}`, {
+      headers: {
+        'Authorization': `token ${gistConfig.token}`,
+        'Accept': 'application/vnd.github.v3+json'
+      }
+    });
+    
+    if (getResponse.ok) {
+      const data = await getResponse.json();
+      if (data.files && data.files['posts.json']) {
+        allPosts = JSON.parse(data.files['posts.json'].content);
+      }
+    }
+    
+    // Remove old posts from this site
+    allPosts = allPosts.filter(post => post.site !== gistConfig.siteName);
+    
+    // Add new posts
+    allPosts = [...allPosts, ...posts];
+    
+    // Save back to Gist
     const response = await fetch(`https://api.github.com/gists/${gistConfig.gistId}`, {
       method: 'PATCH',
       headers: {
@@ -411,7 +451,7 @@ async function savePostsToGist(posts) {
       body: JSON.stringify({
         files: {
           'posts.json': {
-            content: JSON.stringify(posts, null, 2)
+            content: JSON.stringify(allPosts, null, 2)
           }
         }
       })
@@ -442,7 +482,12 @@ async function getPosts() {
 // Save posts (to Gist or localStorage)
 async function savePosts(posts) {
   if (gistConfig.token && gistConfig.gistId) {
-    return await savePostsToGist(posts);
+    // Add site name to each post
+    const postsWithSite = posts.map(post => ({
+      ...post,
+      site: gistConfig.siteName
+    }));
+    return await savePostsToGist(postsWithSite);
   } else {
     localStorage.setItem('db_posts', JSON.stringify(posts));
     return true;
