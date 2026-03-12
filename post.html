@@ -118,27 +118,66 @@ footer{background:var(--navy);color:rgba(255,255,255,0.5);margin-top:60px}
 <script>
 const params = new URLSearchParams(window.location.search);
 const id = params.get('id');
-const posts = JSON.parse(localStorage.getItem('db_posts') || '[]');
-const post = posts.find(p => p.id == id);
-if (post) {
-  document.title = post.title + ' — NederlandNieuws';
-  document.getElementById('post-title').textContent = post.title;
-  document.getElementById('post-cat').textContent = post.category || 'Nederland';
-  document.getElementById('post-author').textContent = post.author || 'Redactie';
-  document.getElementById('post-date').textContent = new Date(post.date).toLocaleDateString('nl-NL',{day:'numeric',month:'long',year:'numeric'});
-  const words = post.content.replace(/<[^>]+>/g,'').split(' ').length;
-  document.getElementById('post-read').textContent = Math.max(1,Math.round(words/200)) + ' min leestijd';
-  document.getElementById('article-body').innerHTML = post.content;
-  document.getElementById('post-hero').style.display = 'block';
-  // Recent posts
-  const rp = document.getElementById('recent-posts');
-  posts.slice(-4).reverse().forEach(p => {
-    if (p.id == id) return;
-    rp.innerHTML += `<div class="recent-item"><a href="post.html?id=${p.id}">${p.title}</a><span>${new Date(p.date).toLocaleDateString('nl-NL')}</span></div>`;
-  });
-} else {
-  document.getElementById('not-found').style.display = 'block';
+
+async function loadPost() {
+  try {
+    // Try to get posts from Gist
+    const gistConfig = JSON.parse(localStorage.getItem('gist_config') || '{}');
+    
+    if (gistConfig.gistId) {
+      // Use GitHub API to fetch the gist (CORS friendly)
+      const response = await fetch(`https://api.github.com/gists/${gistConfig.gistId}`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        const content = data.files['posts.json']?.content;
+        
+        if (content) {
+          const posts = JSON.parse(content);
+          displayPost(posts);
+          return;
+        }
+      }
+    }
+    
+    // Fallback to localStorage
+    const posts = JSON.parse(localStorage.getItem('db_posts') || '[]');
+    displayPost(posts);
+  } catch (error) {
+    console.error('Error loading post:', error);
+    // Fallback to localStorage
+    const posts = JSON.parse(localStorage.getItem('db_posts') || '[]');
+    displayPost(posts);
+  }
 }
+
+function displayPost(posts) {
+  const post = posts.find(p => p.id == id);
+  
+  if (post) {
+    document.title = post.title + ' — NederlandNieuws';
+    document.getElementById('post-title').textContent = post.title;
+    document.getElementById('post-cat').textContent = post.category || 'Nederland';
+    document.getElementById('post-author').textContent = post.author || 'Redactie';
+    document.getElementById('post-date').textContent = new Date(post.date).toLocaleDateString('nl-NL',{day:'numeric',month:'long',year:'numeric'});
+    const words = post.content.replace(/<[^>]+>/g,'').split(' ').length;
+    document.getElementById('post-read').textContent = Math.max(1,Math.round(words/200)) + ' min leestijd';
+    document.getElementById('article-body').innerHTML = post.content;
+    document.getElementById('post-hero').style.display = 'block';
+    
+    // Recent posts
+    const rp = document.getElementById('recent-posts');
+    rp.innerHTML = '';
+    posts.slice(-4).reverse().forEach(p => {
+      if (p.id == id) return;
+      rp.innerHTML += `<div class="recent-item"><a href="post.html?id=${p.id}">${p.title}</a><span>${new Date(p.date).toLocaleDateString('nl-NL')}</span></div>`;
+    });
+  } else {
+    document.getElementById('not-found').style.display = 'block';
+  }
+}
+
+loadPost();
 </script>
 </body>
 </html>
