@@ -125,15 +125,32 @@ async function loadPost() {
     const gistConfig = JSON.parse(localStorage.getItem('gist_config') || '{}');
     
     if (gistConfig.gistId) {
-      // Use GitHub API to fetch the gist (CORS friendly)
+      // Try with token first
+      if (gistConfig.token) {
+        const response = await fetch(`https://api.github.com/gists/${gistConfig.gistId}`, {
+          headers: {
+            'Authorization': `token ${gistConfig.token}`,
+            'Accept': 'application/vnd.github.v3+json'
+          }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.files && data.files['posts.json']) {
+            const posts = JSON.parse(data.files['posts.json'].content);
+            displayPost(posts);
+            return;
+          }
+        }
+      }
+      
+      // Fallback to public access
       const response = await fetch(`https://api.github.com/gists/${gistConfig.gistId}`);
       
       if (response.ok) {
         const data = await response.json();
-        const content = data.files['posts.json']?.content;
-        
-        if (content) {
-          const posts = JSON.parse(content);
+        if (data.files && data.files['posts.json']) {
+          const posts = JSON.parse(data.files['posts.json'].content);
           displayPost(posts);
           return;
         }
