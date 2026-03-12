@@ -6,7 +6,7 @@
 <title>Artikel — NederlandNieuws</title>
 <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-/* [Keep ALL your existing styles here - same as before] */
+/* [Keep ALL your existing styles here] */
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--orange:#E8500A;--navy:#003082;--bg:#F4F6FB;--white:#fff;--dark:#0D1B2A;--mid:#4A5568;--border:#DCE3F0;--accent:#FFB800}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dark)}
@@ -119,25 +119,39 @@ footer{background:var(--navy);color:rgba(255,255,255,0.5);margin-top:60px}
 <script>
 const params = new URLSearchParams(window.location.search);
 const id = params.get('id');
-const GIST_ID = '4204aab51e26caa4985f631e0b59e1c4'; // Your Gist ID
+const GIST_ID = '4204aab51e26caa4985f631e0b59e1c4';
 
 async function loadPost() {
   try {
-    // Fetch from Gist (public access - no token needed!)
+    console.log('Loading post with ID:', id);
+    
+    // Fetch from Gist
     const response = await fetch(`https://api.github.com/gists/${GIST_ID}`);
     
     if (response.ok) {
       const data = await response.json();
+      console.log('Gist data received');
       
       if (data.files && data.files['posts.json']) {
-        const posts = JSON.parse(data.files['posts.json'].content);
-        displayPost(posts);
-        return;
+        const rawContent = data.files['posts.json'].content;
+        console.log('Raw content length:', rawContent.length);
+        
+        try {
+          const posts = JSON.parse(rawContent);
+          console.log('Posts loaded, count:', posts.length);
+          displayPost(posts);
+        } catch (parseError) {
+          console.error('Error parsing JSON:', parseError);
+          document.getElementById('not-found').style.display = 'block';
+        }
+      } else {
+        console.log('posts.json not found in Gist');
+        document.getElementById('not-found').style.display = 'block';
       }
+    } else {
+      console.error('Failed to fetch Gist:', response.status);
+      document.getElementById('not-found').style.display = 'block';
     }
-    
-    // If Gist fetch fails, show not found
-    document.getElementById('not-found').style.display = 'block';
   } catch (error) {
     console.error('Error loading post:', error);
     document.getElementById('not-found').style.display = 'block';
@@ -146,6 +160,8 @@ async function loadPost() {
 
 function displayPost(posts) {
   const post = posts.find(p => p.id == id);
+  console.log('Looking for post with ID:', id);
+  console.log('Found post:', post);
   
   if (post) {
     document.title = post.title + ' — NederlandNieuws';
@@ -166,6 +182,7 @@ function displayPost(posts) {
       rp.innerHTML += `<div class="recent-item"><a href="post.html?id=${p.id}">${p.title}</a><span>${new Date(p.date).toLocaleDateString('nl-NL')}</span></div>`;
     });
   } else {
+    console.log('Post not found in posts array');
     document.getElementById('not-found').style.display = 'block';
   }
 }
