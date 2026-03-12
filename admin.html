@@ -6,7 +6,6 @@
 <title>Admin — NederlandNieuws</title>
 <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-/* [Keep ALL your existing styles] */
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--orange:#E8500A;--navy:#003082;--bg:#F4F6FB;--white:#fff;--dark:#0D1B2A;--mid:#4A5568;--border:#DCE3F0;--green:#16A34A;--accent:#FFB800}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dark);min-height:100vh}
@@ -44,7 +43,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dark);min
 .panel{display:none}
 .panel.active{display:block}
 .panel-title{font-family:'Abril Fatface',serif;font-size:26px;color:var(--navy);margin-bottom:24px;display:flex;align-items:center;gap:10px}
-.panel-title::before{content:'';width:4px;height:28px;background:var(--orange);display:block}
+.panel-title::before{content:'';width:5px;height:28px;background:var(--orange);display:block}
 
 /* STATS */
 .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:28px}
@@ -162,22 +161,20 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dark);min
           Dit zorgt dat artikelen van verschillende sites niet mixen.
         </div>
         <div class="gist-info">
-          <strong>📌 Zo vind je je Gist ID:</strong><br>
-          1. Ga naar <a href="https://gist.github.com/Hamzamain-spec" target="_blank">https://gist.github.com/Hamzamain-spec</a><br>
-          2. Klik op je posts.json gist<br>
-          3. Kopieer het ID uit de URL (het lange getal)<br>
+          <strong>📌 Jouw Gist ID:</strong> 42ea11087f40fdba423f8eb0f575ac96<br>
+          <strong>📌 Raw URL:</strong> https://gist.githubusercontent.com/Hamzamain-spec/42ea11087f40fdba423f8eb0f575ac96/raw/posts.json
         </div>
         <div class="gist-field">
           <label>GitHub Token (plak hier je token)</label>
           <input type="password" id="github-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
         </div>
         <div class="gist-field">
-          <label>Gist ID (vul hier je Gist ID in)</label>
-          <input type="text" id="gist-id" placeholder="4204aab51e26caa4985f631e0b59e1c4">
+          <label>Gist ID (al ingevuld)</label>
+          <input type="text" id="gist-id" value="42ea11087f40fdba423f8eb0f575ac96">
         </div>
         <div class="gist-field">
-          <label>Site naam (bv. nederlandnieuws)</label>
-          <input type="text" id="site-name" value="nederlandnieuws" placeholder="nederlandnieuws">
+          <label>Site naam (voor deze site)</label>
+          <input type="text" id="site-name" value="netherland-news" placeholder="netherland-news">
           <small style="color:#666;">Dit zorgt dat artikelen van verschillende sites niet mixen</small>
         </div>
         <button class="publish-btn" onclick="testGistConnection()" style="width:auto;padding:12px 24px">🔌 Test Gist Verbinding</button>
@@ -263,7 +260,7 @@ const PASS = 'germanadmin00#hamzauthority1';
 let editingId = null;
 let gistConfig = {
   token: '',
-  gistId: '',
+  gistId: '42ea11087f40fdba423f8eb0f575ac96',
   siteName: 'netherland-news'
 };
 
@@ -275,7 +272,7 @@ function loadGistConfig() {
       const savedConfig = JSON.parse(saved);
       gistConfig = {...gistConfig, ...savedConfig};
       document.getElementById('github-token').value = gistConfig.token || '';
-      document.getElementById('gist-id').value = gistConfig.gistId || '';
+      document.getElementById('gist-id').value = gistConfig.gistId || '42ea11087f40fdba423f8eb0f575ac96';
       document.getElementById('site-name').value = gistConfig.siteName || 'netherland-news';
     } catch (e) {
       console.error('Error loading Gist config:', e);
