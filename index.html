@@ -164,8 +164,8 @@ footer{background:var(--navy);color:rgba(255,255,255,0.5);margin-top:60px}
   </div>
   <div class="grid" id="posts-grid">
     <div class="empty">
-      <h3>Nog geen artikelen</h3>
-      <p>De eerste berichten verschijnen binnenkort.</p>
+      <h3>Artikelen laden...</h3>
+      <p>Even geduld a.u.b.</p>
     </div>
   </div>
 </div>
@@ -200,10 +200,49 @@ footer{background:var(--navy);color:rgba(255,255,255,0.5);margin-top:60px}
 
 <script>
 const colors = ['c1','c2','c3','c4','c5','c6'];
-function loadPosts() {
-  const posts = JSON.parse(localStorage.getItem('db_posts') || '[]');
+
+async function loadPosts() {
   const grid = document.getElementById('posts-grid');
-  if (!posts.length) return;
+  
+  try {
+    // Try to get posts from Gist
+    const gistConfig = JSON.parse(localStorage.getItem('gist_config') || '{}');
+    
+    if (gistConfig.gistId) {
+      // Use GitHub API to fetch the gist (CORS friendly)
+      const response = await fetch(`https://api.github.com/gists/${gistConfig.gistId}`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        const content = data.files['posts.json']?.content;
+        
+        if (content) {
+          const posts = JSON.parse(content);
+          displayPosts(posts);
+          return;
+        }
+      }
+    }
+    
+    // Fallback to localStorage
+    const posts = JSON.parse(localStorage.getItem('db_posts') || '[]');
+    displayPosts(posts);
+  } catch (error) {
+    console.error('Error loading posts:', error);
+    // Fallback to localStorage
+    const posts = JSON.parse(localStorage.getItem('db_posts') || '[]');
+    displayPosts(posts);
+  }
+}
+
+function displayPosts(posts) {
+  const grid = document.getElementById('posts-grid');
+  
+  if (!posts || posts.length === 0) {
+    grid.innerHTML = '<div class="empty"><h3>Nog geen artikelen</h3><p>De eerste berichten verschijnen binnenkort.</p></div>';
+    return;
+  }
+  
   grid.innerHTML = '';
   posts.slice().reverse().forEach((p, i) => {
     const color = colors[i % colors.length];
@@ -221,7 +260,12 @@ function loadPosts() {
       </div>`;
   });
 }
+
+// Load posts when page loads
 loadPosts();
+
+// Auto-refresh posts every 30 seconds to show new articles
+setInterval(loadPosts, 30000);
 </script>
 </body>
 </html>
