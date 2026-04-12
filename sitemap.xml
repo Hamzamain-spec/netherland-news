@@ -1,26 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://netherland-news.qs0.de/</loc>
+    <loc>http://netherland-news.qs0.de/</loc>
+    <lastmod>2026-04-12</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://netherland-news.qs0.de/#/post/1773328393512</loc>
+    <loc>http://netherland-news.qs0.de/index.html</loc>
+    <lastmod>2026-04-12</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>http://netherland-news.qs0.de/post.html?id=1773328393512</loc>
     <lastmod>2026-03-12</lastmod>
-    <changefreq>monthly</changefreq>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://netherland-news.qs0.de/#/post/1773504525217</loc>
+    <loc>http://netherland-news.qs0.de/post.html?id=1773504525217</loc>
     <lastmod>2026-03-14</lastmod>
-    <changefreq>monthly</changefreq>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://netherland-news.qs0.de/#/post/post-1775654251289</loc>
+    <loc>http://netherland-news.qs0.de/post.html?id=post-1775654251289</loc>
     <lastmod>2026-04-08</lastmod>
-    <changefreq>monthly</changefreq>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
 </urlset>
